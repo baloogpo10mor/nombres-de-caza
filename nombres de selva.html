@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nombres de Caza - Manada de Lobatos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --selva-oscura: #1b4332;
+            --selva-media: #2d6a4f;
+            --selva-clara: #40916c;
+            --tierra: #bc6c25;
+            --tierra-clara: #dda15e;
+            --arena: #fefae0;
+            --oro: #d4a373;
+            --texto: #283618;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(135deg, var(--arena) 0%, #faedcd 100%);
+            color: var(--texto);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(to right, var(--selva-oscura), var(--selva-media));
+            color: var(--arena);
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .controls {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--selva-clara);
+            border-radius: 25px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--tierra);
+            box-shadow: 0 0 0 3px rgba(188, 108, 37, 0.1);
+        }
+
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 20px;
+            background: var(--selva-clara);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            background: var(--selva-media);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: var(--tierra);
+        }
+
+        .stats {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-style: italic;
+            color: var(--selva-oscura);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid var(--selva-clara);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .card.dirigente {
+            border-left-color: var(--tierra);
+            background: linear-gradient(to bottom right, #fff, #fff8f0);
+        }
+
+        .card.seisenero {
+            border-left-color: var(--oro);
+            background: linear-gradient(to bottom right, #fff, #fffbf0);
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            background: linear-gradient(to right, rgba(45, 106, 79, 0.1), transparent);
+            border-bottom: 1px solid #eee;
+        }
+
+        .card-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            color: var(--selva-oscura);
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-subtitle {
+            font-size: 0.9rem;
+            color: var(--tierra);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .card-section {
+            margin-bottom: 1rem;
+        }
+
+        .card-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-weight: 700;
+            color: var(--selva-media);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .section-content {
+            font-size: 0.95rem;
+            color: var(--texto);
+            line-height: 1.5;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            margin-right: 0.3rem;
+        }
+
+        .tag-origen-k {
+            background: #e9edc9;
+            color: #606c38;
+        }
+
+        .tag-origen-scout {
+            background: #d4a373;
+            color: white;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 15px;
+            font-weight: 700;
+            margin-left: auto;
+        }
+
+        .badge-dirigente {
+            background: #bc6c25;
+            color: white;
+        }
+
+        .badge-seisenero {
+            background: #d4a373;
+            color: white;
+        }
+
+        .badge-lobato {
+            background: #40916c;
+            color: white;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            color: var(--selva-oscura);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--selva-clara);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.5rem; }
+            .grid { grid-template-columns: 1fr; }
+            .controls { flex-direction: column; align-items: stretch; }
+        }
+
+        .highlight {
+            background: yellow;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🐺 Nombres de Caza de la Selva</h1>
+    <p class="subtitle">Basados en Rudyard Kipling y la tradición scout</p>
+</header>
+
+<div class="container">
+    <div class="controls">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Buscar nombre, animal o característica...">
+        </div>
+        <div class="filters">
+            <button class="filter-btn active" data-filter="todos">Todos</button>
+            <button class="filter-btn" data-filter="dirigente">Dirigentes</button>
+            <button class="filter-btn" data-filter="seisenero">Seiseneros</button>
+            <button class="filter-btn" data-filter="lobato">Nombres de Caza</button>
+        </div>
+    </div>
+
+    <div class="stats" id="stats">Mostrando todos los nombres</div>
+
+    <div class="grid" id="grid">
+        <!-- Los datos se insertarán aquí con JavaScript -->
+    </div>
+</div>
+
+<footer>
+    <p>Recopilación basada en los textos de Gilcraft, Baden-Powell y las historias de Rudyard Kipling</p>
+    <p>📖 El Libro de la Selva | Manada de Lobatos Scouts</p>
+</footer>
+
+<script>
+const nombres = [
+    // DIRIGENTES
+    {
+        nombre: "Akela",
+        animal: "Lobo Gris Jefe",
+        categoria: "dirigente",
+        origen: "Kipling",
+        significado: "Líder Supremo de la Manada",
+        caracteristicas: "Coordinador, justo, sabelotodo. Es el único que puede otorgar nombres de caza y preside el Consejo de la Roca.",
+        funcion: "Jefe máximo de la Manada. Representa la autoridad legítima y la sabiduría institucional."
+    },
+    {
+        nombre: "Baloo",
+        animal: "Oso pardo",
+        categoria: "dirigente",
+        origen: "Kipling",
+        significado: "Maestro de la Ley",
+        caracteristicas: "Enseña la Ley de la Selva. Paciente, metódico, aunque a veces distraído.",
+        funcion: "Segundo dirigente o maestro de enseñanza. Transmite normas y valores scout."
+    },
+    {
+        nombre: "Bagheera",
+        animal: "Pantera Negra",
+        categoria: "dirigente",
+        origen: "Kipling",
+        significado: "La Sombra Veloz",
+        caracteristicas: "Astuta, ágil, silenciosa. Cariñosa pero exigente. Domina técnicas de supervivencia.",
+        funcion: "Consejera técnica. Enseña astucia, agilidad y protección cercana."
+    },
+    {
+        nombre: "Hathi",
+        animal: "Elefante Indio",
+        categoria: "dirigente",
+        origen: "Kipling",
+        significado: "El Viejo de la Selva",
+        caracteristicas: "Ordenado, justo, tiene memoria de siglos. Dignidad Authority sin agresión.",
+        funcion: "Vigilante del orden y la tradición. Conserva la historia de la Manada y evalúa el cumplimiento de la Ley."
+    },
+    {
+        nombre: "Kaa",
+        animal: "Pitón de 9 metros",
+        categoria: "dirigente",
+        origen: "Kipling",
+        significado: "El Maestro Técnico",
+        caracteristicas: "Sabia, paciente, de perfil bajo pero experta. Dominio corporal absoluto.",
+        funcion: "Especialista técnica. Enseña planificación estratégica y técnicas avanzadas."
+    },
+    {
+        nombre: "Raksha",
+        animal: "Madre Loba",
+        categoria: "dirigente",
+        origen: "Kipling",
+        significado: "La Demonio (de la protección)",
+        caracteristicas: "Cariñosa, paciente, responsable. Feroz defensora de sus cachorros.",
+        funcion: "Cuidado afectivo y desarrollo emocional. Representa el amor maternal y la protección incondicional."
+    },
+    {
+        nombre: "Fao",
+        animal: "Lobo Joven",
+        categoria: "dirigente",
+        origen: "Kipling",
+        significado: "El Sucesor",
+        caracteristicas: "Líder nato pero humilde. Consulta siempre a los mayores antes de decidir.",
+        funcion: "Sucesor de Akela. Representa la transición generacional y el respeto a la experiencia."
+    },
+    {
+        nombre: "Kotick",
+        animal: "Foca Blanca",
+        categoria: "dirigente", 
+        origen: "Kipling",
+        significado: "El Líder Servicial",
+        caracteristicas: "Perseverante, educado, amigable. Preocupación genuina por el bienestar común.",
+        funcion: "Jefe de Grupo o responsable de rama. Liderazgo de servicio y perseverancia extrema."
+    },
+    {
+        nombre: "Won-Tolla",
+        animal: "Lobo Solitario",
+        categoria: "dirigente",
+        origen: "Kipling",
+        significado: "El Forastero Útil",
+        caracteristicas: "Resistente, sabe pedir ayuda. Trae perspectivas externas.",
+        funcion: "Dirigente de programa de prácticas o visitante. Representa la ayuda mutua y la colaboración entre grupos."
+    },
+    {
+        nombre: "Rikki-Tikki-Tavi",
+        animal: "Mangosta",
+        categoria: "dirigente",
+        origen: "Kipling",
+        significado: "El Ánimo Inquebrantable",
+        caracteristicas: "Valiente, ágil, alegre inquebrantable. Protege a los suyos de peligros ocultos.",
+        funcion: "Responsable de Afectividad/Sociabilidad. Mantiene el ánimo y protege el ambiente emocional."
+    },
+
+    // SEISENEROS (Cargos de Lobatos)
+    {
+        nombre: "Colmillo Rojo",
+        animal: "Lobo Rojo de Montaña",
+        categoria: "seisenero",
+        origen: "Scout",
+        significado: "Líder de la Seisena Roja",
+        caracteristicas: "Combativo, fuerte, honorable. Primero en pelear, último en retirarse.",
+        funcion: "Seisenero de los Lobos de la Montaña. Defensor feroz de su grupo."
+    },
+    {
+        nombre: "Garra Blanca",
+        animal: "Lobo Ártico",
+        categoria: "seisenero",
+        origen: "Scout",
+        significado: "Líder de la Seisena Blanca",
+        caracteristicas: "Ordenado, puro, metódico. Pulcritud impecable.",
+        funcion: "Seisenero de los Lobos de la Tundra. Guardián del orden y la precisión."
+    },
+    {
+        nombre: "Pluma Negra",
+        animal: "Lobo del Bosque",
+        categoria: "seisenero",
+        origen: "Scout",
+        significado: "Líder de la Seisena Negra",
+        caracteristicas: "Elegante, discreto, misterioso. Guardián de secretos.",
+        funcion: "Seisenero de los Lobos del Bosque. Maestro del sigilo y la estrategia."
+    },
+    {
+        nombre: "Piel Bronceada",
+        animal: "Lobo de las Tierras Bajas",
+        categoria: "seisenero",
+        origen: "Scout",
+        significado: "Líder de la Seisena Marrón",
+        caracteristicas: "Práctico, terrenal, rastreador nato. Ordenado y pragmático.",
+        funcion: "Seisenero de los Lobos de las Tierras Bajas. Especialista en orientación y supervivencia terrestre."
+    },
+    {
+        nombre: "Hermano Gris",
+        animal: "Lobo de la Selva",
+        categoria: "seisenero",
+        origen: "Kipling",
+        significado: "Líder de la Seisena Gris",
+        caracteristicas: "Leal, compañero, fiel. El amigo por excelencia.",
+        funcion: "Seisenero de los Lobos de la Selva. Representa la tradición y el compañerismo."
+    },
+
+    // NOMBRES DE CAZA (Lobatos)
+    {
+        nombre: "Karaït",
+        animal: "Serpiente pequeña marrón",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Pequeño Venenoso",
+        caracteristicas: "Pequeño pero intenso. Camuflado, discreto pero valiente cuando ataca. Veloz y letal."
+    },
+    {
+        nombre: "Adheek",
+        animal: "Reno",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Veloz Solidario",
+        caracteristicas: "Veloz corredor pero siempre piensa en el equipo. Participativo más que individualista."
+    },
+    {
+        nombre: "Barasing",
+        animal: "Ciervo de pantanos",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El de los Doce Cuernos",
+        caracteristicas: "Saltador y ágil. No tiene recelos, se brinda por entero hasta hacerse amigo."
+    },
+    {
+        nombre: "Brumby",
+        animal: "Caballo salvaje",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Veloz Indómito",
+        caracteristicas: "Veloz como el viento, resistente, indómito pero leal. No necesita pedigrí para brillar."
+    },
+    {
+        nombre: "Capucha Blanca",
+        animal: "Cobra Albina",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Guardián del Tesoro",
+        caracteristicas: "Responsable, ordenado, metódico. Custodia los bienes de la Manada con celo hermético."
+    },
+    {
+        nombre: "Chikai",
+        animal: "Ratoncillo saltarín",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Saltarín Optimista",
+        caracteristicas: "Pequeño, hiperactivo, atlético. Optimista contagioso, amigo de todos."
+    },
+    {
+        nombre: "Chil",
+        animal: "Milano/Milano Real",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Mensajero Obediente",
+        caracteristicas: "Vista aguda, obediente, vigilante. Siempre atento y dispuesto a ayudar."
+    },
+    {
+        nombre: "Chua",
+        animal: "Rata",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Desarreglado",
+        caracteristicas: "Siempre despeinado o desenvuelto. 'Inocencia funcional', no le importa su apariencia."
+    },
+    {
+        nombre: "Chuchundra",
+        animal: "Ratón musgaño",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Tímido",
+        caracteristicas: "Miedoso, siempre atrás de Akela. Nombre transitorio hasta que supere su temor."
+    },
+    {
+        nombre: "Dahinda",
+        animal: "Rana Toro / Sapo",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Inquieto Gourmet",
+        caracteristicas: "Hiperactivo, saltarín, siempre pide atención. Afición precoz por la cocina."
+    },
+    {
+        nombre: "Darzee",
+        animal: "Pájaro Tejedor",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Artesano Cantor",
+        caracteristicas: "Habilidoso con las manos (nudos, construcción). Cantor, a veces parlanchín."
+    },
+    {
+        nombre: "Ferao",
+        animal: "Pájaro Carpintero Escarlata",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Iniciador",
+        caracteristicas: "Inicia el canto, trabaja la madera. Persistente ('vuelve otra vez')."
+    },
+    {
+        nombre: "Gancho de Mar",
+        animal: "Foca gris (Sea Catch)",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Defensor Feroz",
+        caracteristicas: "Defiende a sus compañeros aunque estén equivocados. Nadador nato, leal hasta el final."
+    },
+    {
+        nombre: "Humo Azul",
+        animal: "Indio señalizador",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Comunicador",
+        caracteristicas: "Experto en señales y códigos. Interpreta cualquier señal o llama la atención."
+    },
+    {
+        nombre: "Iagoo",
+        animal: "Cuentista Indio",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Narrador",
+        caracteristicas: "Devorador de libros, cuenta historias. Imaginativo, expresivo verbalmente."
+    },
+    {
+        nombre: "Ikki",
+        animal: "Puercoespín",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Curioso",
+        caracteristicas: "Chismoso, quiere enterarse de todo. Mete su nariz en todos lados."
+    },
+    {
+        nombre: "Jacala",
+        animal: "Cocodrilo",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Perseverante",
+        caracteristicas: "Persiste en lo que quiere. Actúa o es buen luchador/físico. A veces actor/camaleón."
+    },
+    {
+        nombre: "Kadlu",
+        animal: "Cazador Inuit",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Experimentado",
+        caracteristicas: "Práctico, sabe por la experiencia. Enseña a su hijo (Kotuko). Proveedor."
+    },
+    {
+        nombre: "Kala-Nag",
+        animal: "Elefante Negro",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Caminante Resistente",
+        caracteristicas: "Resistencia extrema para marchas. Carga peso sin quejarse. Valor sin temor."
+    },
+    {
+        nombre: "Karela",
+        animal: "Vid Amarga/Calabaza",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Entrelazador",
+        caracteristicas: "Experto en nudos y maromas. Conecta a otros, trabaja con cuerdas."
+    },
+    {
+        nombre: "Keego",
+        animal: "Pez",
+        categoria: "lobato",
+        origen: "Kipling/Hiawatha",
+        significado: "El Nadador",
+        caracteristicas: "Nadador nato, disfruta el agua. Se desenvuelve mejor en el medio líquido."
+    },
+    {
+        nombre: "Kenau",
+        animal: "Gran Águila",
+        categoria: "lobato",
+        origen: "Kipling/Hiawatha",
+        significado: "La Veloz Cazadora",
+        caracteristicas: "Fanático de correr y juegos físicos. Velocidad pura."
+    },
+    {
+        nombre: "Kim",
+        animal: "El Pequeño Amigo del Mundo",
+        categoria: "lobato",
+        origen: "Kipling (novela Kim)",
+        significado: "El Servicial",
+        caracteristicas: "Siempre ayuda a todos. Buena predisposición constante. Astuto pero bondadoso."
+    },
+    {
+        nombre: "Ko",
+        animal: "Cuervo",
+        categoria: "lobato",
+        origen: "Folclore/Kipling",
+        significado: "El Parlanchín Musical",
+        caracteristicas: "Bullicioso, cantor, le gusta llamar la atención. Vocalizador constante."
+    },
+    {
+        nombre: "Kotuko",
+        animal: "Niño Esquimal",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Valiente Leal",
+        caracteristicas: "Valiente para hacer su deber. Comparte con otros. Aprende de su padre."
+    },
+    {
+        nombre: "Langur",
+        animal: "Mono del Himalaya",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Curioso Cuestionador",
+        caracteristicas: "Inquieto, quiere probar todo. Desconfía/cuestiona antes de hacer (por curiosidad)."
+    },
+    {
+        nombre: "Limmershin",
+        animal: "Reyezuelo del Invierno",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Veraz",
+        caracteristicas: "No sabe mentir, cumple promesas. Narrador de historias verdaderas."
+    },
+    {
+        nombre: "Mao",
+        animal: "Pavo Real",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Vanidoso",
+        caracteristicas: "Presumido, habla con palabras bonitas pero vacías. Canta o declama."
+    },
+    {
+        nombre: "Mor",
+        animal: "Pavo Real (correcto)",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Pulcro",
+        caracteristicas: "Muy ordenado, limpio, educado. Cortesía serena y distinción."
+    },
+    {
+        nombre: "Mysa",
+        animal: "Búfalo de Pantano",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El que Escucha",
+        caracteristicas: "Gran oído, siempre atento. Paciente, protector, corpulento."
+    },
+    {
+        nombre: "Nushka",
+        animal: "Indio Guía",
+        categoria: "lobato",
+        origen: "Kipling/Hiawatha",
+        significado: "¡Mira!",
+        caracteristicas: "Facilidad para orientarse. Le gusta guiar expediciones y explorar."
+    },
+    {
+        nombre: "Ojo de Halcón",
+        animal: "Indio Observador",
+        categoria: "lobato",
+        origen: "Folclore/Kipling",
+        significado: "El Perceptivo",
+        caracteristicas: "Observador agudo, nada se le escapa. Buena puntería, vigilante."
+    },
+    {
+        nombre: "Oo",
+        animal: "Tortuga",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Metódico",
+        caracteristicas: "Lento pero bueno. Hace las cosas despacio pero bien. Paciente."
+    },
+    {
+        nombre: "Oonai",
+        animal: "Lobo Parlanchín",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Recitador",
+        caracteristicas: "Siempre hablando. Recita poesías o es muy bullicioso socialmente."
+    },
+    {
+        nombre: "Pluma de Oro",
+        animal: "Indio Artista",
+        categoria: "lobato",
+        origen: "Folclore/Kipling",
+        significado: "El Creador",
+        caracteristicas: "Artista en todos los medios: dibujo, tallado, actuación. Creativo visual."
+    },
+    {
+        nombre: "Pukeena",
+        animal: "Saltamontes",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Saltarín",
+        caracteristicas: "Pequeño, inquieto, veloz. Difícil de atrapar, hiperactivo."
+    },
+    {
+        nombre: "Purun-Bhagat",
+        animal: "Ermitaño",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Naturalista",
+        caracteristicas: "Amigo de todos (animales y humanos). Estudia naturaleza. Capaz de sacrificio."
+    },
+    {
+        nombre: "Rama",
+        animal: "Toro",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Líder Silencioso",
+        caracteristicas: "Buen físico, don de mando sin ostentación. Guía silenciosamente."
+    },
+    {
+        nombre: "Rann",
+        animal: "Milano",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Vigilante",
+        caracteristicas: "Muy buena vista, atento. Mensajero así como Chil (variante)."
+    },
+    {
+        nombre: "Sahi",
+        animal: "Puercoespín",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Mensajero Útil",
+        caracteristicas: "Trae mensajes importantes, no chismes. Aprecia buena comida (cocinero)."
+    },
+    {
+        nombre: "Shada",
+        animal: "Pelícano",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Tenaz",
+        caracteristicas: "Nunca desiste en lo que hace. Perseverante hasta el final."
+    },
+    {
+        nombre: "Shaw Shaw",
+        animal: "Golondrina",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "La Viajera",
+        caracteristicas: "Le encantan las excursiones y viajar. Exploradora del bosque."
+    },
+    {
+        nombre: "Singum",
+        animal: "León",
+        categoria: "lobato",
+        origen: "Folclore/Kipling",
+        significado: "El Bondadoso Fuerte",
+        caracteristicas: "Bondadoso, fuerte, trabajador. Defensor de los más pequeños."
+    },
+    {
+        nombre: "Sona",
+        animal: "Oso Negro Himalaya",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Gruñón Solidario",
+        caracteristicas: "Parece gruñón, le cuesta integrarse, pero es solidario y leal."
+    },
+    {
+        nombre: "Sugeema",
+        animal: "Mosquito",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Pequeño",
+        caracteristicas: "El más pequeño de la Manada. Nombre transitorio hasta que crezca."
+    },
+    {
+        nombre: "Tilji-Pho",
+        animal: "Alondra",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Cantor Alegre",
+        caracteristicas: "Canta o toca instrumentos. Alegría particular en todo momento."
+    },
+    {
+        nombre: "Tonka",
+        animal: "El Grande (Sioux)",
+        categoria: "lobato",
+        origen: "Folclore norteamericano",
+        significado: "El Grande",
+        caracteristicas: "Grande en tamaño o realizaciones. Grandeza de espíritu."
+    },
+    {
+        nombre: "Toomai",
+        animal: "Cuidador de Elefantes",
+        categoria: "lobato",
+        origen: "Kipling",
+        significado: "El Mejorable",
+        caracteristicas: "Se esfuerza por mejorar día a día. Obediente, posible tesorero."
+    }
+];
+
+function renderCards(filter = 'todos', searchTerm = '') {
+    const grid = document.getElementById('grid');
+    const stats = document.getElementById('stats');
+    grid.innerHTML = '';
+    
+    let filtered = nombres;
+    
+    // Filtrar por categoría
+    if (filter !== 'todos') {
+        filtered = filtered.filter(n => n.categoria === filter);
+    }
+    
+    // Filtrar por búsqueda
+    if (searchTerm) {
+        const term = searchTerm.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        filtered = filtered.filter(n => {
+            const text = (n.nombre + ' ' + n.animal + ' ' + n.caracteristicas + ' ' + n.significado).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            return text.includes(term);
+        });
+    }
+    
+    // Actualizar stats
+    const count = filtered.length;
+    const total = nombres.length;
+    stats.textContent = filter === 'todos' && !searchTerm 
+        ? `Mostrando todos los nombres (${total})`
+        : `Mostrando ${count} de ${total} nombres`;
+    
+    // Renderizar cards
+    filtered.forEach(nombre => {
+        const card = document.createElement('div');
+        card.className = `card ${nombre.categoria}`;
+        
+        let badgeClass = '';
+        let badgeText = '';
+        switch(nombre.categoria) {
+            case 'dirigente':
+                badgeClass = 'badge-dirigente';
+                badgeText = 'Dirigente';
+                break;
+            case 'seisenero':
+                badgeClass = 'badge-seisenero';
+                badgeText = 'Seisenero';
+                break;
+            case 'lobato':
+                badgeClass = 'badge-lobato';
+                badgeText = 'Lobato';
+                break;
+        }
+        
+        const origenClass = nombre.origen === 'Kipling' ? 'tag-origen-k' : 'tag-origen-scout';
+        
+        card.innerHTML = `
+            <div class="card-header">
+                <div class="card-title">
+                    ${nombre.nombre}
+                    <span class="badge ${badgeClass}">${badgeText}</span>
+                </div>
+                <div class="card-subtitle">${nombre.animal}</div>
+            </div>
+            <div class="card-body">
+                <div class="card-section">
+                    <div class="section-title">📖 Significado</div>
+                    <div class="section-content">${nombre.significado}</div>
+                </div>
+                <div class="card-section">
+                    <div class="section-title">🎭 Características</div>
+                    <div class="section-content">${nombre.caracteristicas}</div>
+                </div>
+                ${nombre.funcion ? `
+                <div class="card-section">
+                    <div class="section-title">⚜️ Función</div>
+                    <div class="section-content">${nombre.funcion}</div>
+                </div>
+                ` : ''}
+                <div style="margin-top: 1rem;">
+                    <span class="tag ${origenClass}">${nombre.origen}</span>
+                </div>
+            </div>
+        `;
+        
+        grid.appendChild(card);
+    });
+    
+    if (filtered.length === 0) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #666;">No se encontraron nombres que coincidan con la búsqueda.</div>';
+    }
+}
+
+// Event listeners
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        const filter = e.target.getAttribute('data-filter');
+        const searchTerm = document.getElementById('searchInput').value;
+        renderCards(filter, searchTerm);
+    });
+});
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+    renderCards(activeFilter, e.target.value);
+});
+
+// Render inicial
+renderCards();
+</script>
+
+</body>
+</html>
